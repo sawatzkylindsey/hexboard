@@ -4,7 +4,7 @@ var DELTA_Y = Math.cos(Raphael.rad(60)) * SIDE_LENGTH;
 var OFFSET = 5;
 
 var BOARD_LENGTH = 3;
-var GRID_WIDTH = BOARD_LENGTH;
+var GRID_WIDTH = (BOARD_LENGTH * 2) - 1;
 var GRID_HEIGHT = (BOARD_LENGTH * 2) - 1;
 
 var grid = [];
@@ -52,7 +52,7 @@ function drawboard() {
 
 function in_drawable(coord) {
     return coord.x + coord.y >= (BOARD_LENGTH - 1) &&
-        coord.x + coord.y <= (BOARD_LENGTH + 1);
+        coord.x + coord.y <= (BOARD_LENGTH * 2);
 }
 
 function hexboard(coords) {
