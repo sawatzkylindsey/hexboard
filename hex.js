@@ -3,7 +3,7 @@ var DELTA_X = Math.cos(Raphael.rad(30)) * SIDE_LENGTH;
 var DELTA_Y = Math.cos(Raphael.rad(60)) * SIDE_LENGTH;
 var OFFSET = 5;
 
-var BOARD_LENGTH = 3;
+var BOARD_LENGTH = 13;
 var GRID_WIDTH = (BOARD_LENGTH * 2) - 1;
 var GRID_HEIGHT = (BOARD_LENGTH * 2) - 1;
 
@@ -23,7 +23,9 @@ window.onload = function() {
 };
 
 function drawboard() {
-    var paper = Raphael(10, 10, 800, 800);
+    var xmax = (OFFSET * 2) + (GRID_WIDTH * 2 * DELTA_X);
+    var ymax = (OFFSET * 2) + (GRID_HEIGHT * 2 * DELTA_Y) + (GRID_HEIGHT * SIDE_LENGTH);
+    var paper = Raphael(0, 0, xmax, ymax);
     var cells = hexboard(grid);
 
     for (var j = 0; j < cells.length; j++) {
@@ -52,7 +54,7 @@ function drawboard() {
 
 function in_drawable(coord) {
     return coord.x + coord.y >= (BOARD_LENGTH - 1) &&
-        coord.x + coord.y <= (BOARD_LENGTH * 2);
+        coord.x + coord.y < ((GRID_HEIGHT + GRID_WIDTH) - BOARD_LENGTH);
 }
 
 function hexboard(coords) {
