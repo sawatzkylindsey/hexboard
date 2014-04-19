@@ -6,7 +6,7 @@ var grid;
 
 window.onload = function() {
     grid = make_hexagonal_board();
-    calculate_hexes(grid, BOARD_LENGTH);
+    set_board_parameters(25, 3, 5);
     drawboard(grid, BOARD_LENGTH);
 }
 

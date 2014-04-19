@@ -1,17 +1,24 @@
-var SIDE_LENGTH = 19;
-var DELTA_X = Math.cos(Raphael.rad(30)) * SIDE_LENGTH;
-var DELTA_Y = Math.cos(Raphael.rad(60)) * SIDE_LENGTH;
-var OFFSET = 5;
-var STROKE = 2;
+var SIDE_LENGTH = null;
+var DELTA_X = null;
+var DELTA_Y = null;
+var STROKE = null;
+var BOARDER = null;
 
 
-function x_max(board_width) {
-    return (OFFSET * 2) + (board_width * 2 * DELTA_X);
-}
-
-function y_max(board_height) {
-    return (OFFSET * 2) + (board_height * 2 * DELTA_Y) +
-        (board_height * SIDE_LENGTH);
+/**
+ * Set the render parameters for the board.
+ *
+ * @param {number} side_length The length of each hexagonal cell's side.
+ *                             Default is 15.
+ * @param {number} stroke The width of each stroke.  Default is 2.
+ * @param {number} boarder The margin for the board.  Default is 10.
+ */
+function set_board_parameters(side_length, stroke, boarder) {
+    SIDE_LENGTH = side_length || 15;
+    DELTA_X = Math.cos(Raphael.rad(30)) * SIDE_LENGTH;
+    DELTA_Y = Math.cos(Raphael.rad(60)) * SIDE_LENGTH;
+    STROKE = stroke || 2;
+    BOARDER = boarder || 10;
 }
 
 function board_width(board_length) {
@@ -69,14 +76,20 @@ function in_board_space(x, y, board_length) {
 /**
  * Draw the board.
  *
- * @param {array} board The array/list of cell objects, which have had
- *                      their hex points calculated via calculate_hexes().
+ * @param {array} board The array/list of coordinate objects, whose
+ *                      coordinates are denoted by .x and .y.  These
+ *                      must adhere to in_board_space().  Each object may
+ *                      optionally include the 'colour' member, which will
+ *                      be used to fill the cell.
  * @param {number} board_length The length of the side of the board.
  */
 function drawboard(board, board_length) {
+    calculate_hexes(board, board_length);
     var bw = board_width(board_length);
     var bh = board_height(board_length);
-    var paper = Raphael(0, 0, x_max(bh), y_max(bh));
+    var x_max = (BOARDER * 2) + (bw * 2 * DELTA_X);
+    var y_max = (BOARDER * 2) + (bh * 2 * DELTA_Y) + (bh * SIDE_LENGTH);
+    var paper = Raphael(0, 0, x_max, y_max);
 
     for (var j = 0; j < board.length; j++) {
         var points = board[j].hex_points;
@@ -120,9 +133,9 @@ function calculate_hexes(board, board_length) {
 
 function hexagon(coord, board_length) {
     var points = [];
-    var xoff = OFFSET + (coord.x * 2 * DELTA_X) +
+    var xoff = BOARDER + (coord.x * 2 * DELTA_X) +
         ((coord.y - board_length + 1) * DELTA_X);
-    var yoff = OFFSET + (coord.y * DELTA_Y) + (coord.y * SIDE_LENGTH);
+    var yoff = BOARDER + (coord.y * DELTA_Y) + (coord.y * SIDE_LENGTH);
     points.push([xoff, yoff + DELTA_Y]);
     points.push([xoff, yoff + DELTA_Y + SIDE_LENGTH]);
     points.push([xoff + DELTA_X, yoff + (2 * DELTA_Y) + SIDE_LENGTH]);
