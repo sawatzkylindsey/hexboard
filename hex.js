@@ -1,36 +1,24 @@
-var SIDE_LENGTH = 30;
+var SIDE_LENGTH = 19;
 var DELTA_X = Math.cos(Raphael.rad(30)) * SIDE_LENGTH;
 var DELTA_Y = Math.cos(Raphael.rad(60)) * SIDE_LENGTH;
 var OFFSET = 5;
+var STROKE = 2;
 
-var BOARD_LENGTH = 13;
-var GRID_WIDTH = (BOARD_LENGTH * 2) - 1;
-var GRID_HEIGHT = (BOARD_LENGTH * 2) - 1;
 
-var grid = [];
-
-for (var x = 0; x < GRID_WIDTH; x++ ) {
-    for (var y = 0; y < GRID_HEIGHT; y++) {
-        grid.push({
-            "x": x,
-            "y": y
-        });
-    }
+function x_max() {
+    return (OFFSET * 2) + (GRID_WIDTH * 2 * DELTA_X);
 }
 
-window.onload = function() {
-    drawboard();
-};
+function y_max() {
+    return (OFFSET * 2) + (GRID_HEIGHT * 2 * DELTA_Y) +
+        (GRID_HEIGHT * SIDE_LENGTH);
+}
 
 function drawboard() {
-    var xmax = (OFFSET * 2) + (GRID_WIDTH * 2 * DELTA_X);
-    var ymax = (OFFSET * 2) + (GRID_HEIGHT * 2 * DELTA_Y) + (GRID_HEIGHT * SIDE_LENGTH);
-    var paper = Raphael(0, 0, xmax, ymax);
-    var cells = hexboard(grid);
+    var paper = Raphael(0, 0, x_max(), y_max());
 
-    for (var j = 0; j < cells.length; j++) {
-        var points = cells[j];
-        // console.debug("Drawing cell: " + points);
+    for (var j = 0; j < grid.length; j++) {
+        var points = grid[j].hex_points;
         var hex_path = "";
 
         for (var i = 0; i < points.length; i++) {
@@ -46,34 +34,26 @@ function drawboard() {
             }
         }
         var p = paper.path(hex_path);
-        p.attr("stroke-width", 3);
+        p.attr("stroke-width", STROKE);
         p.attr("stroke-linecap", "round");
         p.attr("stroke-linejoin", "round");
+
+        if ("colour" in grid[j]) {
+            p.attr("fill", grid[j].colour);
+        }
     }
 };
 
-function in_drawable(coord) {
-    return coord.x + coord.y >= (BOARD_LENGTH - 1) &&
-        coord.x + coord.y < ((GRID_HEIGHT + GRID_WIDTH) - BOARD_LENGTH);
-}
-
-function hexboard(coords) {
-    console.debug(coords);
-    var board = [];
-
-    for (var i = 0; i < coords.length; i++) {
-        if (in_drawable(coords[i])) {
-            board.push(hexagon(coords[i]));
-        }
+function calculate_hexes(grid) {
+    for (var i = 0; i < grid.length; i++) {
+        grid[i].hex_points = hexagon(grid[i]);
     }
-
-    console.debug(board);
-    return board;
 }
 
 function hexagon(coord) {
     var points = [];
-    var xoff = OFFSET + (coord.x * 2 * DELTA_X) + ((coord.y - BOARD_LENGTH + 1) * DELTA_X);
+    var xoff = OFFSET + (coord.x * 2 * DELTA_X) + 
+        ((coord.y - BOARD_LENGTH + 1) * DELTA_X);
     var yoff = OFFSET + (coord.y * DELTA_Y) + (coord.y * SIDE_LENGTH);
     points.push([xoff, yoff + DELTA_Y]);
     points.push([xoff, yoff + DELTA_Y + SIDE_LENGTH]);
