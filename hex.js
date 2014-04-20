@@ -135,6 +135,7 @@ function drawboard(board, board_length) {
  *
  *      n
  *  nw     ne
+ *      m
  *  sw     se
  *      s
  *
@@ -155,6 +156,7 @@ function calculate_hexes(board, board_length) {
         board[i].se = hex_se(xoff, yoff);
         board[i].ne = hex_ne(xoff, yoff);
         board[i].n = hex_n(xoff, yoff);
+        board[i].m = hex_m(xoff, yoff);
     }
 }
 
@@ -180,4 +182,8 @@ function hex_ne(xoff, yoff) {
 
 function hex_n(xoff, yoff) {
     return [xoff + DELTA_X, yoff];
+}
+
+function hex_m(xoff, yoff) {
+    return [xoff + DELTA_X, yoff + DELTA_Y + (SIDE_LENGTH / 2)];
 }
