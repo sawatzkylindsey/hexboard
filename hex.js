@@ -78,9 +78,17 @@ function in_board_space(x, y, board_length) {
  *
  * @param {array} board The array/list of coordinate objects, whose
  *                      coordinates are denoted by .x and .y.  These
- *                      must adhere to in_board_space().  Each object may
- *                      optionally include the 'colour' member, which will
- *                      be used to fill the cell.
+ *                      must adhere to in_board_space().
+ *                      Each object may optionally include the 'colour' member,
+ *                      which will be used to fill the cell's background.
+ *                      Each object may optionally provide 'drawers', an
+ *                      ordered array of arrays.  The first item in the
+ *                      sub-array is the callback function used to draw on top
+ *                      of the cell.  This callback must take at least 2
+ *                      arguments, first is the Raphael paper to draw on,
+ *                      second is the cell itself which is being drawn in.  The
+ *                      remaining items in the sub-array are passed through
+ *                      to the callback.
  * @param {number} board_length The length of the side of the board.
  */
 function drawboard(board, board_length) {
@@ -92,21 +100,14 @@ function drawboard(board, board_length) {
     var paper = Raphael(0, 0, x_max, y_max);
 
     for (var j = 0; j < board.length; j++) {
-        var points = board[j].hex_points;
-        var hex_path = "";
-
-        for (var i = 0; i < points.length; i++) {
-            if (i === 0) {
-                hex_path += "M" + points[i][0] + "," + points[i][1];
-            }
-            else {
-                hex_path += "L" + points[i][0] + "," + points[i][1];
-            }
-
-            if (i === points.length - 1) {
-                hex_path += "L" + points[0][0] + "," + points[0][1];
-            }
-        }
+        var cell = board[j];
+        var hex_path = "M" + cell.nw[0] + "," + cell.nw[1];
+        hex_path += "L" + cell.sw[0] + "," + cell.sw[1];
+        hex_path += "L" + cell.s[0] + "," + cell.s[1];
+        hex_path += "L" + cell.se[0] + "," + cell.se[1];
+        hex_path += "L" + cell.ne[0] + "," + cell.ne[1];
+        hex_path += "L" + cell.n[0] + "," + cell.n[1];
+        hex_path += "L" + cell.nw[0] + "," + cell.nw[1];
         var p = paper.path(hex_path);
         p.attr("stroke-width", STROKE);
         p.attr("stroke-linecap", "round");
@@ -115,11 +116,28 @@ function drawboard(board, board_length) {
         if ("colour" in board[j]) {
             p.attr("fill", board[j].colour);
         }
+
+        if ("drawers" in board[j]) {
+            for (var i = 0; i < board[j].drawers.length; i++) {
+                var drawer = board[j].drawers[i];
+                drawer[0](paper, board[j], drawer.splice(1, drawer.length - 1));
+            }
+        }
     }
 };
 
 /**
- * Calculates the vector points for a list of board coordinates
+ * Calculates the hex points for a list of board coordinates.
+ *
+ * The result of this call is to add/set these points on each item
+ * in the board.  These values may be used later, for example by a
+ * drawer, and they correspond to the following hex layout:
+ *
+ *      n
+ *  nw     ne
+ *  sw     se
+ *      s
+ *
  *
  * @param {array} board The array/list of coordinate objects, whose
  *                      coordinates are denoted by .x and .y.
@@ -127,20 +145,39 @@ function drawboard(board, board_length) {
  */
 function calculate_hexes(board, board_length) {
     for (var i = 0; i < board.length; i++) {
-        board[i].hex_points = hexagon(board[i], board_length);
+        var xoff = BOARDER + (board[i].x * 2 * DELTA_X) +
+            ((board[i].y - board_length + 1) * DELTA_X);
+        var yoff = BOARDER + (board[i].y * DELTA_Y) +
+            (board[i].y * SIDE_LENGTH);
+        board[i].nw = hex_nw(xoff, yoff);
+        board[i].sw = hex_sw(xoff, yoff);
+        board[i].s = hex_s(xoff, yoff);
+        board[i].se = hex_se(xoff, yoff);
+        board[i].ne = hex_ne(xoff, yoff);
+        board[i].n = hex_n(xoff, yoff);
     }
 }
 
-function hexagon(coord, board_length) {
-    var points = [];
-    var xoff = BOARDER + (coord.x * 2 * DELTA_X) +
-        ((coord.y - board_length + 1) * DELTA_X);
-    var yoff = BOARDER + (coord.y * DELTA_Y) + (coord.y * SIDE_LENGTH);
-    points.push([xoff, yoff + DELTA_Y]);
-    points.push([xoff, yoff + DELTA_Y + SIDE_LENGTH]);
-    points.push([xoff + DELTA_X, yoff + (2 * DELTA_Y) + SIDE_LENGTH]);
-    points.push([xoff + (2 * DELTA_X), yoff + DELTA_Y + SIDE_LENGTH]);
-    points.push([xoff + (2 * DELTA_X), yoff + DELTA_Y]);
-    points.push([xoff + DELTA_X, yoff]);
-    return points;
+function hex_nw(xoff, yoff) {
+    return [xoff, yoff + DELTA_Y];
+}
+
+function hex_sw(xoff, yoff) {
+    return [xoff, yoff + DELTA_Y + SIDE_LENGTH];
+}
+
+function hex_s(xoff, yoff) {
+    return [xoff + DELTA_X, yoff + (2 * DELTA_Y) + SIDE_LENGTH];
+}
+
+function hex_se(xoff, yoff) {
+    return [xoff + (2 * DELTA_X), yoff + DELTA_Y + SIDE_LENGTH];
+}
+
+function hex_ne(xoff, yoff) {
+    return [xoff + (2 * DELTA_X), yoff + DELTA_Y];
+}
+
+function hex_n(xoff, yoff) {
+    return [xoff + DELTA_X, yoff];
 }
