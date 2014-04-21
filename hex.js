@@ -120,7 +120,9 @@ function drawboard(board, board_length) {
         if ("drawers" in board[j]) {
             for (var i = 0; i < board[j].drawers.length; i++) {
                 var drawer = board[j].drawers[i];
-                drawer[0](paper, board[j], drawer.splice(1, drawer.length - 1));
+                var passthroughs = drawer.splice(1, drawer.length - 1);
+                var params = [paper, board[j]].concat(passthroughs);
+                drawer[0].apply(this, params);
             }
         }
     }

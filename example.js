@@ -48,9 +48,7 @@ function make_hexagonal_grid() {
 }
 
 function draw_coord(paper, cell) {
-    paper.print(cell.nw[0] + 8, cell.m[1],
-                cell.x + "," + cell.y,
-                paper.getFont("freesans"));
+    paper.text(cell.m[0], cell.m[1], cell.x + "," + cell.y);
 }
 
 function draw_wave(paper, cell, extra_1, extra_2) {
