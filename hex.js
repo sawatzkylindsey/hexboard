@@ -116,7 +116,10 @@ function drawboard(board, board_length) {
         if ("colour" in board[j]) {
             p.attr("fill", board[j].colour);
         }
+    }
 
+    for (var j = 0; j < board.length; j++) {
+        var cell = board[j];
         if ("drawers" in board[j]) {
             for (var i = 0; i < board[j].drawers.length; i++) {
                 var drawer = board[j].drawers[i];
